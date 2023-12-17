@@ -5,10 +5,6 @@ import pprint
 from itertools import chain
 
 
-file = "sample.pdf"
-file2 = "testdoc.pdf"
-file3 = "test2.pdf"
-
 def get_checks(statement):
 
     # looks for a pattern that has date, check number, negative amount 
@@ -33,6 +29,7 @@ def get_checks(statement):
 
 
 def get_withdrawals(statement):
+    # find the pattern MM/DD/YYYY DESC -amount
     pattern = re.compile(r"(\d{2}/\d{2}/\d{2}.*?)\s*(.+?)\s*(-\d{1,3}(?:,\d{3})*\.\d{2})")
 
     with pp.open(statement) as pdf:
@@ -54,11 +51,12 @@ def get_withdrawals(statement):
 
             for line in text.split("\n"):
                 result = pattern.findall(line)
-            
-                
+                # edge case where the checks and other withdrawal amounts are 
+                # on the same page
+                ## not sure how to exclude this in regex pattern search
                 for tup in result:
                     if not tup[1].isdigit():
-                        filtered_list.append(result)             
+                        filtered_list.append(result)  
         
         # # add 9999 check number
         ## 
@@ -66,10 +64,10 @@ def get_withdrawals(statement):
         withdraw_amt = [("9999", amt[2]) for amt in filtered_list]
         return withdraw_amt
 
-## NOTE: Possible edge case in which checks and withdrawals 
 
-
-def convert_csv(checks, withdraws): 
+def convert_csv(statement):
+    checks = get_checks(statement)
+    withdraws = get_withdrawals(statement) 
             
     df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
     df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
@@ -80,24 +78,24 @@ def convert_csv(checks, withdraws):
     new_df["Amount"] = new_df["Amount"].str[1:]
     new_df.to_csv("output.csv", index=False)
     
-# test cases
-# a = get_checks(file)
-# a = get_checks(file2)
-a = get_checks(file3)
-
-# test cases
-# b = get_withdrawals(file)
-# b = get_withdrawals(file2)
-b = get_withdrawals(file3)     
-            
-    
-
-        
-
-
-  
 
 
 
-        
-        
+file = "sample.pdf"
+file2 = "testdoc.pdf"
+file3 = "test2.pdf"
+
+
+# convert_csv(file)
+# convert_csv(file2)
+# convert_csv(file3)
+
+
+
+
+
+
+
+
+
+
