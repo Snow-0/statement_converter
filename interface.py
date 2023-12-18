@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, \
      QWidget, QPushButton, QLabel, QFileDialog, QRadioButton)
 from PyQt5 import uic
+from main import convert_csv
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,6 +18,7 @@ class MainWindow(QMainWindow):
 
         self.label = self.findChild(QLabel, "label")
         self.label_2 = self.findChild(QLabel, "label_2")
+        self.label_3 = self.findChild(QLabel, "label_3")
 
         self.boa_radio = self.findChild(QRadioButton, "radioButton")
         self.wf_radio = self.findChild(QRadioButton, "radioButton_2")
@@ -26,20 +28,27 @@ class MainWindow(QMainWindow):
 
 
         self.button.clicked.connect(self.open_file)
-        self.export_button.clicked.connect(self.set_output)
+        self.export_button.clicked.connect(self.save_output)
 
         self.convert_button.clicked.connect(self.convert)
+        self.setGeometry(400, 400, 400, 450)
+
+
+        self.file = ""
+        self.save_loc = ""
 
 
     def open_file(self):
         file_filter = "PDF Files (*.pdf)"
-        file = QFileDialog.getOpenFileName(self, "Open PDF File", "", file_filter)[0]
-        self.label.setText(file)
+        self.file = QFileDialog.getOpenFileName(self, "Open PDF File", "", file_filter)[0]
+        self.label.setText(self.file)
     
 
     # implement export location feature
-    def set_output(self):
-        pass
+    def save_output(self):
+        self.save_loc = QFileDialog.getExistingDirectory(self, "Select Directory", "")
+        self.label_2.setText(self.save_loc)
+        
 
     def convert(self):
         bank = ""
@@ -47,11 +56,15 @@ class MainWindow(QMainWindow):
             bank = "Bank of America"
         if self.wf_radio.isChecked():
             bank = "Wells Fargo"
-        if self.ewb_radio.isChecked():
-            bank = "EastWest Bank"
+        # if self.ewb_radio.isChecked():
+        #     bank = "EastWest Bank"
         if self.truist_radio.isChecked():
             bank = "Truist Bank"
-
+        try: 
+            convert_csv(self.file, bank, self.save_loc)
+            self.label_3.setText("Done!")
+        except ValueError:
+            self.label_3.setText("Error! Please try again.")
 
         
 if __name__ == "__main__":
