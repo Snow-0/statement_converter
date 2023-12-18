@@ -1,185 +1,76 @@
-import re
-import pdfplumber as pp
-import pandas as pd 
-import pprint 
-from itertools import chain
+import sys
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, \
+     QWidget, QPushButton, QLabel, QFileDialog, QRadioButton)
+from PyQt5 import uic
+from converter import convert_csv
 
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi("gui.ui", self)
 
-def boa_get_checks(statement):
+        # create the buttons and labels
+        self.setWindowTitle("Bank Statement Converter")
+        self.convert_button = self.findChild(QPushButton, "pushButton_3")
+        self.button = self.findChild(QPushButton, "pushButton")
+        self.export_button = self.findChild(QPushButton, "pushButton_2")
 
-    # looks for a pattern that has date, check number, negative amount 
-    pattern = re.compile(r"\d{2}/\d{2}/\d{2} (\d+)\*? (-?\d{1,3}(?:,\d{3})*\.\d{2})")
-    a_list = []
+        self.label = self.findChild(QLabel, "label")
+        self.label_2 = self.findChild(QLabel, "label_2")
+        self.label_3 = self.findChild(QLabel, "label_3")
 
-    with pp.open(statement) as pdf:
-        pages = pdf.pages
-
-        for page in pages:
-            text = page.extract_text()
-            for line in text.split("\n"):
-                result = pattern.findall(line)
-                if len(result) != 0:
-                    a_list.append(result)
-
-
-    # flatten the nested tuple list 
-    a_list = list(chain.from_iterable(a_list))
-
-    return a_list
-
-
-def boa_get_withdrawals(statement):
-    # find the pattern MM/DD/YYYY DESC -amount
-    pattern = re.compile(r"(\d{2}/\d{2}/\d{2}.*?)\s*(.+?)\**\s*(-\d{1,3}(?:,\d{3})*\.\d{2})")
-
-    with pp.open(statement) as pdf:
-        pages = pdf.pages
-        matching_pages = []
-
-        filtered_list = [] 
-
-        # get only pages that have withdrawals/checks in them 
-        for page_number, page in enumerate(pages, start=1):
-            text = page.extract_text()
-            
-            if "Withdrawals" in text:
-                matching_pages.append(page)
-
-        # parse through withdrawal pages 
-        for page in matching_pages:   
-            text = page.extract_text()
-
-            for line in text.split("\n"):
-                result = pattern.findall(line)
-                # edge case where the checks and other withdrawal amounts are 
-                # on the same page
-                ## not sure how to exclude this in regex pattern search
-                for tup in result:
-                    if not tup[1].isdigit():
-                        filtered_list.append(result)  
-
-        
-        # # add 9999 check number
-        filtered_list = list(chain.from_iterable(filtered_list))
-        withdraw_amt = [("9999", amt[2]) for amt in filtered_list]
-        return withdraw_amt
-
-
-def truist_get_checks(statement):
-
-    # looks for a pattern that has date, check number, negative amount 
-    pattern = re.compile(r"\d{2}/\d{2} \**(\d+)? (\d{1,3}(?:,\d{3})*\.\d{2})")
-    a_list = []
-
-    with pp.open(statement) as pdf:
-        pages = pdf.pages
-
-        for page in pages:
-            text = page.extract_text()
-            for line in text.split("\n"):
-                result = pattern.findall(line)
-                if len(result) != 0:
-                    a_list.append(result)
-
-
-    # flatten the nested tuple list 
-    a_list = list(chain.from_iterable(a_list))
-
-    return a_list
-
-
-def truist_get_withdrawals(statement):
-    # find the pattern MM/DD/YYYY DESC -amount
-    pattern = re.compile(r"(\d{2}/\d{2})\s+\**(.+?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})")
-
-    with pp.open(statement) as pdf:
-        pages = pdf.pages
-        matching_pages = []
-
-        filtered_list = [] 
-
-        # get only pages that have withdrawals in them 
-        for page_number, page in enumerate(pages, start=1):
-            text = page.extract_text()
-            
-            if "withdrawals" in text:
-                matching_pages.append(page)
-
-        # parse through withdrawal pages 
-        for page in matching_pages:   
-            text = page.extract_text()
-
-            for line in text.split("\n"):
-                result = pattern.findall(line)
-                print(result)
-                # edge case where the checks and other withdrawal amounts are 
-                # on the same page
-                ## not sure how to exclude this in regex pattern search
-                for tup in result:
-                    if not tup[1].isdigit():
-                        filtered_list.append(result)  
-        
-        # # add 9999 check number
-        ## 
-        filtered_list = list(chain.from_iterable(filtered_list))
-        withdraw_amt = [("9999", amt[2]) for amt in filtered_list]
-        return withdraw_amt
+        self.boa_radio = self.findChild(QRadioButton, "radioButton")
+        self.wf_radio = self.findChild(QRadioButton, "radioButton_2")
+        self.ewb_radio = self.findChild(QRadioButton, "radioButton_3")
+        self.truist_radio = self.findChild(QRadioButton, "radioButton_4")
 
 
 
+        self.button.clicked.connect(self.open_file)
+        self.export_button.clicked.connect(self.save_output)
 
-def convert_csv(statement, bank, path):
-    checks = ""
-    withdraws = ""
-    if bank == "Bank of America":
-        checks = boa_get_checks(statement)
-        withdraws = boa_get_withdrawals(statement) 
-    if bank == "Wells Fargo":
-        pass 
-    if bank == "EastWest Bank":
-        pass
-    if bank == "Truist":
-        checks = truist_get_checks(statement)
-        withdraws = truist_get_withdrawals(statement) 
+        self.convert_button.clicked.connect(self.convert)
+        self.setGeometry(400, 400, 400, 450)
 
-            
-    df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
-    df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
-    df["Check Number"] = df["Check Number"].astype(int)
-    df.sort_values(by=["Check Number"], inplace=True)
-    new_df = pd.concat([df, df1], axis=0)
-    #remove negatives from string 
-    new_df["Amount"] = new_df["Amount"].str[1:]
-    new_df.to_csv(f"{path}/output.csv", index=False)
+
+        self.file = ""
+        self.save_loc = ""
+
+
+    def open_file(self):
+        file_filter = "PDF Files (*.pdf)"
+        self.file = QFileDialog.getOpenFileName(self, "Open PDF File", "", file_filter)[0]
+        self.label.setText(self.file)
     
 
+    # implement export location feature
+    def save_output(self):
+        self.save_loc = QFileDialog.getExistingDirectory(self, "Select Directory", "")
+        self.label_2.setText(self.save_loc)
+        
 
+    def convert(self):
+        bank = ""
+        if self.boa_radio.isChecked():
+            bank = "Bank of America"
+        if self.wf_radio.isChecked():
+            bank = "Wells Fargo"
+        # if self.ewb_radio.isChecked():
+        #     bank = "EastWest Bank"
+        if self.truist_radio.isChecked():
+            bank = "Truist Bank"
+        try: 
+            convert_csv(self.file, bank, self.save_loc)
+            self.label_3.setText("Done!")
+        except ValueError:
+            self.label_3.setText("Error! Please try again.")
 
-file = "test/sample.pdf"
-file2 = "test/testdoc.pdf"
-file3 = "test/test2.pdf"
-file4 = "test/test4.pdf"
-file5 = "bofatest.pdf"
-
-
-
-# convert_csv(file)
-# convert_csv(file2)
-# convert_csv(file3)
-# convert_csv(file4, "Bank of America")
-
-# convert_csv(file4, "Truist Bank")
-# print(truist_get_checks(file4))
-# print(truist_get_withdrawals(fßßile4))
-# print(boa_get_withdrawals(file4))
-
-
-
-
-
-
-
-
-
-
+        
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec_())
+    
 
