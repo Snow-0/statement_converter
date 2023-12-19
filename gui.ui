@@ -90,28 +90,28 @@
      <rect>
       <x>10</x>
       <y>80</y>
-      <width>100</width>
+      <width>400</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Wells Fargo</string>
+     <string>Wells Fargo (Only Checks)</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="radioButton_3">
     <property name="enabled">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>100</y>
-      <width>141</width>
+      <width>400</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>EastWest Bank</string>
+     <string>EastWest Bank (WIP)</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="radioButton_4">
@@ -122,7 +122,7 @@
      <rect>
       <x>10</x>
       <y>120</y>
-      <width>100</width>
+      <width>200</width>
       <height>20</height>
      </rect>
     </property>
@@ -135,7 +135,7 @@
      <rect>
       <x>0</x>
       <y>220</y>
-      <width>113</width>
+      <width>400</width>
       <height>32</height>
      </rect>
     </property>

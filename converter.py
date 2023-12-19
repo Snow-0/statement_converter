@@ -67,6 +67,7 @@ def boa_get_withdrawals(statement):
 def truist_get_checks(statement):
 
     # looks for a pattern that has date, check number, negative amount 
+    # can't find amounts without an associated check
     pattern = re.compile(r"\d{2}/\d{2} \**(\d+)? (\d{1,3}(?:,\d{3})*\.\d{2})")
     a_list = []
 
@@ -75,7 +76,9 @@ def truist_get_checks(statement):
 
         for page in pages:
             text = page.extract_text()
+           
             for line in text.split("\n"):
+                print(line)
                 result = pattern.findall(line)
                 if len(result) != 0:
                     a_list.append(result)
@@ -89,14 +92,14 @@ def truist_get_checks(statement):
 
 def truist_get_withdrawals(statement):
     # find the pattern MM/DD/YYYY DESC -amount
-    pattern = re.compile(r"(\d{2}/\d{2})\s+\**(.+?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})")
+    ### Hardcode EDI a possible deposit description 
+    pattern = re.compile(r"(\d{2}/\d{2})\s+\**([^EDI].*?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})")
 
     with pp.open(statement) as pdf:
         pages = pdf.pages
         matching_pages = []
 
         filtered_list = [] 
-
         # get only pages that have withdrawals in them 
         for page_number, page in enumerate(pages, start=1):
             text = page.extract_text()
@@ -107,15 +110,14 @@ def truist_get_withdrawals(statement):
         # parse through withdrawal pages 
         for page in matching_pages:   
             text = page.extract_text()
-
+        
             for line in text.split("\n"):
+                
                 result = pattern.findall(line)
-                print(result)
-                # edge case where the checks and other withdrawal amounts are 
-                # on the same page
-                ## not sure how to exclude this in regex pattern search
+                # Possible edgecase in which description may not have DEPOSIT in the description
+
                 for tup in result:
-                    if not tup[1].isdigit():
+                    if not tup[1].isdigit() and tup[1].split()[0] != "DEPOSIT":
                         filtered_list.append(result)  
         
         # # add 9999 check number
@@ -125,8 +127,32 @@ def truist_get_withdrawals(statement):
         return withdraw_amt
 
 
+def wf_get_checks(statement):
+    # looks for a pattern that has date, check number, negative amount 
+    pattern = re.compile(r"(\d+)\*? \d{2}/\d{1,} (\d{1,3}(?:,\d{3})*\.\d{2})")
+    a_list = []
+
+    with pp.open(statement) as pdf:
+        pages = pdf.pages
+        for page in pages:
+            text = page.extract_text()
+            
+            for line in text.split("\n"):
+
+                result = pattern.findall(line)
+                if len(result) != 0:
+                    a_list.append(result)
 
 
+    # flatten the nested tuple list 
+    a_list = list(chain.from_iterable(a_list))
+
+    return a_list
+
+def wf_get_withdrawals(statement):
+    pass
+  
+                
 def convert_csv(statement, bank, path):
     checks = ""
     withdraws = ""
@@ -154,24 +180,11 @@ def convert_csv(statement, bank, path):
 
 
 
-file = "test/sample.pdf"
-file2 = "test/testdoc.pdf"
-file3 = "test/test2.pdf"
-file4 = "test/test4.pdf"
-file5 = "bofatest.pdf"
+
+file = "wellsfaro-1.pdf"
 
 
-
-# convert_csv(file)
-# convert_csv(file2)
-# convert_csv(file3)
-# convert_csv(file4, "Bank of America")
-
-# convert_csv(file4, "Truist Bank")
-# print(truist_get_checks(file4))
-# print(truist_get_withdrawals(fßßile4))
-# print(boa_get_withdrawals(file4))
-
+pprint.pprint(wf_get_checks(file))
 
 
 
