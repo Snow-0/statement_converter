@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, \
-     QWidget, QPushButton, QLabel, QFileDialog, QRadioButton)
+     QWidget, QPushButton, QLabel, QFileDialog, QRadioButton, QLineEdit)
 from PyQt5 import uic
 from converter import convert_csv
 
@@ -25,6 +25,7 @@ class MainWindow(QMainWindow):
         self.ewb_radio = self.findChild(QRadioButton, "radioButton_3")
         self.truist_radio = self.findChild(QRadioButton, "radioButton_4")
 
+        self.file_name = self.findChild(QLineEdit, "lineEdit")
 
 
         self.button.clicked.connect(self.open_file)
@@ -59,9 +60,9 @@ class MainWindow(QMainWindow):
         # if self.ewb_radio.isChecked():
         #     bank = "EastWest Bank"
         if self.truist_radio.isChecked():
-            bank = "Truist Bank"
+            bank = "Truist"
         try: 
-            convert_csv(self.file, bank, self.save_loc)
+            convert_csv(self.file, bank, self.save_loc, self.file_name.text())
             self.label_3.setText("Done!")
         except ValueError:
             self.label_3.setText("Error! Please try again.")

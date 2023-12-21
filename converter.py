@@ -63,6 +63,19 @@ def boa_get_withdrawals(statement):
         withdraw_amt = [("9999", amt[2]) for amt in filtered_list]
         return withdraw_amt
 
+def boa_get_date(statement):
+    pattern = re.compile(r"to\s([A-Z].+) A")
+
+    with pp.open(statement) as pdf:
+        page = pdf.pages[0]
+        text = page.extract_text()
+        for line in text.split("\n"):
+            result = pattern.findall(line)
+            if len(result) != 0:
+                break
+
+
+    return result[0]
 
 def truist_get_checks(statement):
 
@@ -78,7 +91,6 @@ def truist_get_checks(statement):
             text = page.extract_text()
            
             for line in text.split("\n"):
-                print(line)
                 result = pattern.findall(line)
                 if len(result) != 0:
                     a_list.append(result)
@@ -91,10 +103,9 @@ def truist_get_checks(statement):
 
 
 def truist_get_withdrawals(statement):
-    # find the pattern MM/DD/YYYY DESC -amount
+    
     ### Hardcode EDI a possible deposit description 
-    pattern = re.compile(r"(\d{2}/\d{2})\s+\**([^EDI].*?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})")
-
+    pattern = re.compile(r"(\d{2}/\d{2})\s+(?!DEPOSIT|EDI)\**(.+?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})")
     with pp.open(statement) as pdf:
         pages = pdf.pages
         matching_pages = []
@@ -114,10 +125,11 @@ def truist_get_withdrawals(statement):
             for line in text.split("\n"):
                 
                 result = pattern.findall(line)
-                # Possible edgecase in which description may not have DEPOSIT in the description
+        
+                print(result)
 
                 for tup in result:
-                    if not tup[1].isdigit() and tup[1].split()[0] != "DEPOSIT":
+                    if not tup[1].isdigit():
                         filtered_list.append(result)  
         
         # # add 9999 check number
@@ -151,14 +163,15 @@ def wf_get_checks(statement):
 
 def wf_get_withdrawals(statement):
     pass
-  
                 
-def convert_csv(statement, bank, path):
+def convert_csv(statement, bank, path, file_name):
     checks = ""
     withdraws = ""
+    date = ""
     if bank == "Bank of America":
         checks = boa_get_checks(statement)
         withdraws = boa_get_withdrawals(statement) 
+        date = boa_get_date(statement)
     if bank == "Wells Fargo":
         pass 
     if bank == "EastWest Bank":
@@ -167,24 +180,26 @@ def convert_csv(statement, bank, path):
         checks = truist_get_checks(statement)
         withdraws = truist_get_withdrawals(statement) 
 
-            
+    
     df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
     df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
     df["Check Number"] = df["Check Number"].astype(int)
     df.sort_values(by=["Check Number"], inplace=True)
     new_df = pd.concat([df, df1], axis=0)
     #remove negatives from string 
-    new_df["Amount"] = new_df["Amount"].str[1:]
-    new_df.to_csv(f"{path}/output.csv", index=False)
+    if bank == "Bank of America":
+        new_df["Amount"] = new_df["Amount"].str[1:]
+        new_df.insert(1, "Date", date)
+        new_df.insert(2, "ID", "O01")
+        new_df.insert(3, "Code", "5040")
+        new_df["Description"] = "Other Debit"
+        new_df["Date"] = pd.to_datetime(new_df["Date"])
+        new_df["Date"] = new_df["Date"].dt.strftime("%m%d%y")
+    new_df.to_csv(f"{path}/{file_name}.csv", index=False, header=False)
     
 
+file  = "/Users/max/personalProjects/test/bofatest.pdf"
 
-
-
-file = "wellsfaro-1.pdf"
-
-
-pprint.pprint(wf_get_checks(file))
 
 
 

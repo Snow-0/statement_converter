@@ -127,14 +127,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>Truist Bank</string>
+     <string>Truist Bank (not fully working)</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>220</y>
+      <y>270</y>
       <width>400</width>
       <height>32</height>
      </rect>
@@ -147,13 +147,36 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>260</y>
+      <y>300</y>
       <width>300</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string></string>
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>181</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Name of output file</string>
     </property>
    </widget>
   </widget>
