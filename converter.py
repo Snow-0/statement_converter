@@ -111,23 +111,19 @@ def truist_get_withdrawals(statement):
         matching_pages = []
 
         filtered_list = [] 
-        # get only pages that have withdrawals in them 
-        for page_number, page in enumerate(pages, start=1):
-            text = page.extract_text()
+        # # get only pages that have withdrawals in them 
+        # for page_number, page in enumerate(pages, start=1):
+        #     text = page.extract_text()
             
-            if "withdrawals" in text:
-                matching_pages.append(page)
+        #     if "withdrawals" in text:
+        #         matching_pages.append(page)
 
         # parse through withdrawal pages 
-        for page in matching_pages:   
+        for page in pages:   
             text = page.extract_text()
         
-            for line in text.split("\n"):
-                
+            for line in text.split("\n"):             
                 result = pattern.findall(line)
-        
-                print(result)
-
                 for tup in result:
                     if not tup[1].isdigit():
                         filtered_list.append(result)  
