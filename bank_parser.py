@@ -4,6 +4,7 @@ import pandas as pd
 import pprint
 from itertools import chain
 
+
 def boa_get_checks(statement):
     # looks for a pattern that has date, check number, negative amount
     pattern = re.compile(r"\d{2}/\d{2}/\d{2} (\d+)\*? (-?\d{1,3}(?:,\d{3})*\.\d{2})")
@@ -135,7 +136,7 @@ def truist_get_withdrawals(statement):
 
 def wf_get_checks(statement):
     # looks for a pattern that has date, check number, negative amount
-    pattern = re.compile(r"(\d+)\*? \d{2}/\d{1,} (\d{1,3}(?:,\d{3})*\.\d{2})")
+    pattern = re.compile(r"(\d+)\s*\*? \d{1,}/\d{1,} (\d{1,3}(?:,\d{3})*\.\d{2})")
     a_list = []
 
     with pp.open(statement) as pdf:
@@ -155,4 +156,29 @@ def wf_get_checks(statement):
 
 
 def wf_get_withdrawals(statement):
-    pass
+    # find the pattern MM/DD/YYYY DESC -amount
+    pattern = re.compile(r"(\d{1,}/\d{1,})\s*(.+?)\**\s*(\d{1,3}(?:,\d{3})*\.\d{2})")
+
+    with pp.open(statement) as pdf:
+        pages = pdf.pages
+
+        filtered_list = []
+
+        # parse through withdrawal pages
+        for page in pages:
+            text = page.extract_text()
+
+            for line in text.split("\n"):
+                result = pattern.findall(line)
+                if len(result) >= 1:
+                    if result[0][1][0] == "<":
+                        filtered_list.append(result)
+
+        # # add 9999 check number
+        filtered_list = list(chain.from_iterable(filtered_list))
+        withdraw_amt = [("9999", amt[2]) for amt in filtered_list]
+        return len(withdraw_amt)
+
+
+file = "/Users/max/Downloads/Wells Fargo Brush Sushi Izakaya Statements 2023/Brush 013123 WellsFargo.pdf"
+print(wf_get_withdrawals(file))

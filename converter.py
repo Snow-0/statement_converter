@@ -1,8 +1,6 @@
-import re
 import pdfplumber as pp
 import pandas as pd
 import pprint
-from itertools import chain
 from bank_parser import *
 from ocr import run_ocr
 
@@ -17,7 +15,6 @@ def check_ocr(statement):
 
 def convert_csv(statement, bank, path, file_name):
     # mb not don't overwrite original file if user wants to keep non ocr version
-    print(statement)
     check_ocr(statement)
     checks = ""
     withdraws = ""
@@ -51,6 +48,8 @@ def convert_csv(statement, bank, path, file_name):
         new_df["Date"] = pd.to_datetime(new_df["Date"])
         new_df["Date"] = new_df["Date"].dt.strftime("%m%d%y")
     new_df.to_csv(f"{path}/{file_name}.csv", index=False, header=False)
+
+    print(checks)
 
 
 ## Todo
