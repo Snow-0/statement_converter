@@ -1,10 +1,12 @@
 import pdfplumber as pp
 import pandas as pd
-import pprint
 from bank_parser import *
 from ocr import run_ocr
 
 
+# check if there is a text layer for pdf
+# if not will add ocr functionality to pdf for it
+# to be parsed
 def check_ocr(statement):
     with pp.open(statement) as pdf:
         page = pdf.pages[0]
@@ -14,7 +16,8 @@ def check_ocr(statement):
 
 
 def convert_csv(statement, bank, path, file_name):
-    # mb not don't overwrite original file if user wants to keep non ocr version
+    # mb not don't overwrite original file if user wants
+    # to keep non ocr version
     check_ocr(statement)
     checks = ""
     withdraws = ""
@@ -25,20 +28,22 @@ def convert_csv(statement, bank, path, file_name):
         date = boa_get_date(statement)
     if bank == "Wells Fargo":
         checks = wf_get_checks(statement)
-        # withdraws does not work
-        withdraws = []
+        withdraws = wf_get_withdrawals(statement)
     if bank == "EastWest Bank":
         pass
     if bank == "Truist":
         checks = truist_get_checks(statement)
         withdraws = truist_get_withdrawals(statement)
+    if bank == "Chase Bank":
+        checks = chase_get_checks(statement)
+        withdraws = chase_get_withdrawals(statement)
 
     df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
     df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
     df["Check Number"] = df["Check Number"].astype(int)
     df.sort_values(by=["Check Number"], inplace=True)
     new_df = pd.concat([df, df1], axis=0)
-    # remove negatives from string
+    # add filler values
     if bank == "Bank of America":
         new_df["Amount"] = new_df["Amount"].str[1:]
         new_df.insert(1, "Date", date)
@@ -48,12 +53,3 @@ def convert_csv(statement, bank, path, file_name):
         new_df["Date"] = pd.to_datetime(new_df["Date"])
         new_df["Date"] = new_df["Date"].dt.strftime("%m%d%y")
     new_df.to_csv(f"{path}/{file_name}.csv", index=False, header=False)
-
-    print(checks)
-
-
-## Todo
-# fix dates for single digit ones i.e 4 for april should be 04
-# EastWest Bank implement
-
-# file = "/Users/max/personalProjects/test/crashboa.pdf"

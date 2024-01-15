@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QLabel,
     QFileDialog,
-    QRadioButton,
     QLineEdit,
+    QComboBox,
 )
 from PyQt5 import uic
 from converter import convert_csv
@@ -27,10 +27,7 @@ class MainWindow(QMainWindow):
         self.label_2 = self.findChild(QLabel, "label_2")
         self.label_3 = self.findChild(QLabel, "label_3")
 
-        self.boa_radio = self.findChild(QRadioButton, "radioButton")
-        self.wf_radio = self.findChild(QRadioButton, "radioButton_2")
-        self.ewb_radio = self.findChild(QRadioButton, "radioButton_3")
-        self.truist_radio = self.findChild(QRadioButton, "radioButton_4")
+        self.combo_box = self.findChild(QComboBox, "comboBox")
 
         self.file_name = self.findChild(QLineEdit, "lineEdit")
 
@@ -38,7 +35,7 @@ class MainWindow(QMainWindow):
         self.export_button.clicked.connect(self.save_output)
 
         self.convert_button.clicked.connect(self.convert)
-        self.setGeometry(400, 400, 400, 450)
+        self.setGeometry(400, 400, 450, 450)
 
         self.file = ""
         self.save_loc = ""
@@ -56,15 +53,7 @@ class MainWindow(QMainWindow):
         self.label_2.setText(self.save_loc)
 
     def convert(self):
-        bank = ""
-        if self.boa_radio.isChecked():
-            bank = "Bank of America"
-        if self.wf_radio.isChecked():
-            bank = "Wells Fargo"
-        # if self.ewb_radio.isChecked():
-        #     bank = "EastWest Bank"
-        if self.truist_radio.isChecked():
-            bank = "Truist"
+        bank = self.combo_box.currentText()
         #        try:
         #            convert_csv(self.file, bank, self.save_loc, self.file_name.text())
         #            self.label_3.setText("Done!")

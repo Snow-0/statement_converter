@@ -6,178 +6,111 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>453</height>
+    <width>483</width>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>0</y>
-      <width>501</width>
-      <height>16</height>
+      <y>10</y>
+      <width>441</width>
+      <height>271</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Select a PDF file:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>160</y>
-      <width>521</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Exported Location:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>20</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Open File</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>180</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Open</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Bank of America</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_2">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>80</y>
-      <width>400</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Wells Fargo (Only Checks)</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_3">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>100</y>
-      <width>400</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>EastWest Bank (WIP)</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_4">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>120</y>
-      <width>200</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Truist Bank (not fully working)</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_3">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>270</y>
-      <width>400</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Convert</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>300</y>
-      <width>300</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>240</y>
-      <width>181</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>220</y>
-      <width>151</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Name of output file</string>
-    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Select a PDF file:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Open File</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Choose a bank: (wrong bank will result in blank csv)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox">
+       <item>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Bank of America</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Wells fargo only gets withdrawals with &quot;&lt;&quot; symbol</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Truist </string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>EastWest Bank</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Chase Bank</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Exported Location:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Name of output file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="text">
+        <string>Convert</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
