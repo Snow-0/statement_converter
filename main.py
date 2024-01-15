@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5 import uic
 from converter import convert_csv
+import os
 
 
 class MainWindow(QMainWindow):
@@ -35,7 +36,7 @@ class MainWindow(QMainWindow):
         self.export_button.clicked.connect(self.save_output)
 
         self.convert_button.clicked.connect(self.convert)
-        self.setGeometry(400, 400, 450, 450)
+        self.setGeometry(400, 400, 680, 450)
 
         self.file = ""
         self.save_loc = ""
@@ -45,12 +46,13 @@ class MainWindow(QMainWindow):
         self.file = QFileDialog.getOpenFileName(self, "Open PDF File", "", file_filter)[
             0
         ]
-        self.label.setText(self.file)
+        file_name = os.path.basename(self.file).split("/")[-1]
+        self.label.setText(f"File: {file_name}")
 
     # implement export location feature
     def save_output(self):
         self.save_loc = QFileDialog.getExistingDirectory(self, "Select Directory", "")
-        self.label_2.setText(self.save_loc)
+        self.label_2.setText(f"Export: {self.save_loc}")
 
     def convert(self):
         bank = self.combo_box.currentText()

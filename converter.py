@@ -29,6 +29,7 @@ def convert_csv(statement, bank, path, file_name):
     if bank == "Wells Fargo":
         checks = wf_get_checks(statement)
         withdraws = wf_get_withdrawals(statement)
+        date = wf_get_date(statement)
     if bank == "EastWest Bank":
         pass
     if bank == "Truist":
@@ -37,19 +38,19 @@ def convert_csv(statement, bank, path, file_name):
     if bank == "Chase Bank":
         checks = chase_get_checks(statement)
         withdraws = chase_get_withdrawals(statement)
-
+        date = chase_get_date(statement)
     df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
     df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
     df["Check Number"] = df["Check Number"].astype(int)
     df.sort_values(by=["Check Number"], inplace=True)
     new_df = pd.concat([df, df1], axis=0)
-    # add filler values
     if bank == "Bank of America":
         new_df["Amount"] = new_df["Amount"].str[1:]
-        new_df.insert(1, "Date", date)
-        new_df.insert(2, "ID", "O01")
-        new_df.insert(3, "Code", "5040")
-        new_df["Description"] = "Other Debit"
-        new_df["Date"] = pd.to_datetime(new_df["Date"])
-        new_df["Date"] = new_df["Date"].dt.strftime("%m%d%y")
+    # add filler values
+    new_df.insert(1, "Date", date)
+    new_df.insert(2, "ID", "O01")
+    new_df.insert(3, "Code", "5040")
+    new_df["Description"] = "Other Debit"
+    new_df["Date"] = pd.to_datetime(new_df["Date"])
+    new_df["Date"] = new_df["Date"].dt.strftime("%m%d%y")
     new_df.to_csv(f"{path}/{file_name}.csv", index=False, header=False)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>447</height>
+    <width>772</width>
+    <height>488</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>441</width>
-      <height>271</height>
+      <width>661</width>
+      <height>401</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -59,7 +59,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Wells fargo only gets withdrawals with &quot;&lt;&quot; symbol</string>
+         <string>Wells Fargo</string>
         </property>
        </item>
        <item>
@@ -107,6 +107,17 @@
       <widget class="QPushButton" name="pushButton_3">
        <property name="text">
         <string>Convert</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Issues: 
+ Excel will not have leading zeros in dates for import into EasyACCT
+ Truist Bank has not been tested enough
+ Wells Fargo - only gets withdraws with &quot;&lt;&quot; symbol 
+ Chase Bank - some check numbers are wrong</string>
        </property>
       </widget>
      </item>

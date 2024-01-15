@@ -180,6 +180,18 @@ def wf_get_withdrawals(statement):
         return withdraw_amt
 
 
+def wf_get_date(statement):
+    pattern = re.compile(
+        "r\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b"
+    )
+    with pp.open(statement) as pdf:
+        page = pdf.pages[0]
+        text = page.extract_text().split("\n")[1]
+        date = text.split(" Page")[0]
+
+    return date
+
+
 def chase_get_checks(statement):
     # looks for a pattern that has date, check number, negative amount
     pattern = re.compile(r"(\d+)\s*\**\^+ \d{2}/\d{2} \$*(\d{1,3}(?:,\d{3})*\.\d{2})")
@@ -245,8 +257,15 @@ def chase_get_withdrawals(statement):
     return withdraw_amt
 
 
-# file = "/Users/max/Downloads/drive-download-20240115T000331Z-001/Chase Bank Statements 2023/Chase Momo Main Acct 3096/Chase May 2023 statements-3096-.pdf"
-# pprint.pprint(chase_get_checks(file))
-# pprint.pprint(chase_get_withdrawals(file))
-# file = "/Users/max/Downloads/drive-download-20240115T000331Z-001/Chase Bank Statements 2023/Chase Momo Main Acct 3096/Chase Nov 2023 statements-3096-.pdf"
-# pprint.pprint(chase_get_checks(file))
+def chase_get_date(statement):
+    pattern = re.compile(r"through([A-Z].+)")
+
+    with pp.open(statement) as pdf:
+        page = pdf.pages[0]
+        text = page.extract_text()
+        for line in text.split("\n"):
+            result = pattern.findall(line)
+            if len(result) != 0:
+                break
+
+    return "".join(result)
