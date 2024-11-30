@@ -1,0 +1,6 @@
+1. right click and select open terminal inside the statement_convert directory 
+2. enter the following command into the command prompt:
+pyinstaller --onefile --windowed main.py
+3. wait for it finish 
+4. right click on the "dist" folder
+5. move the main.exe file back to the statement_converter directory 
