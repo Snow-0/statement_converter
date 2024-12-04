@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         self.export_button.clicked.connect(self.save_output)
 
         self.convert_button.clicked.connect(self.convert)
-        self.setGeometry(400, 400, 680, 450)
+        self.setGeometry(400, 400, 980, 850)
 
         self.file = ""
         self.save_loc = ""
@@ -56,12 +56,13 @@ class MainWindow(QMainWindow):
 
     def convert(self):
         bank = self.combo_box.currentText()
-        #        try:
-        #            convert_csv(self.file, bank, self.save_loc, self.file_name.text())
-        #            self.label_3.setText("Done!")
-        #        except ValueError:
-        #            self.label_3.setText("Error! Please try again.")
-        #
+        print(bank)
+        # try:
+        #     convert_csv(self.file, bank, self.save_loc, self.file_name.text())
+        #     self.label_3.setText("Done!")
+        # except ValueError:
+            # self.label_3.setText("Error! Please try again.")
+
         convert_csv(self.file, bank, self.save_loc, self.file_name.text())
 
 

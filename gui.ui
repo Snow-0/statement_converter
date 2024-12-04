@@ -64,7 +64,7 @@
        </item>
        <item>
         <property name="text">
-         <string>Truist </string>
+         <string>Truist</string>
         </property>
        </item>
        <item>
@@ -115,7 +115,7 @@
        <property name="text">
         <string>Issues: 
  Excel will not have leading zeros in dates for import into EasyACCT
- Truist Bank has not been tested enough
+ Truist Bank - Checks with missing check number will not be found
  Wells Fargo - only gets withdraws with &quot;&lt;&quot; symbol 
  Chase Bank - some check numbers are wrong</string>
        </property>

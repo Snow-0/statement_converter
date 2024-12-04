@@ -104,34 +104,77 @@ def truist_get_checks(statement):
 def truist_get_withdrawals(statement):
     ### Hardcode EDI a possible deposit description
     pattern = re.compile(
-        r"(\d{2}/\d{2})\s+(?!DEPOSIT|EDI)\**(.+?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})"
+        r"(\d{2}/\d{2})\s+\**(.+?)\s+(\d{1,3}(?:,\d{3})*\.\d{2})"
     )
+    second_instance_found = False
+    extracted_text = []
+    stop_phrase_count = 0
+
     with pp.open(statement) as pdf:
         pages = pdf.pages
 
         filtered_list = []
-        # # get only pages that have withdrawals in them
-        # for page_number, page in enumerate(pages, start=1):
-        #     text = page.extract_text()
-
-        #     if "withdrawals" in text:
-        #         matching_pages.append(page)
-
+        
         # parse through withdrawal pages
-        for page in pages:
-            text = page.extract_text()
+        stop_phrase = "Deposits,creditsandinterest"
+        for page in pages: 
+            page_text = page.extract_text()
+            if page_text is None:
+                continue  # Skip pages that do not have text
 
-            for line in text.split("\n"):
-                result = pattern.findall(line)
-                for tup in result:
-                    if not tup[1].isdigit():
-                        filtered_list.append(result)
+            # Split the text by lines
+            lines = page_text.split('\n')
+
+            # Process each line
+            for line in lines:
+                # If the stop phrase is found, increment the count
+                if stop_phrase in line:
+                    stop_phrase_count += 1
+
+                # If the second instance of the phrase is found, stop extraction
+                if stop_phrase_count == 2:
+                    second_instance_found = True
+                    break
+                # Otherwise, continue appending the line to the extracted text
+                extracted_text.append(line)
+
+            # If the second instance is found, break out of the outer loop as well
+            if second_instance_found:
+                break
+
+        # Join the lines and return the extracted text
+        withdrawal_only =  '\n'.join(extracted_text)
+
+        for line in withdrawal_only.split("\n"):
+            result = pattern.findall(line)
+
+            # removes checks that got in 
+            for tup in result:
+                if not tup[1][0].isdigit():
+                    filtered_list.append(result)
+
+                
 
         # # add 9999 check number
         ##
         filtered_list = list(chain.from_iterable(filtered_list))
         withdraw_amt = [("9999", amt[2]) for amt in filtered_list]
         return withdraw_amt
+
+
+def truist_get_date(statement):
+    pattern = re.compile(r"For \d{2}/\d{2}/\d{4}")
+    with pp.open(statement) as pdf:
+        page = pdf.pages[0]
+        text = page.extract_text()
+        for line in text.split("\n"):
+            result = pattern.findall(line)
+            if len(result) != 0:
+                break
+    
+    # .split() to just get the date
+    return "".join(result).split(" ")[1]
+
 
 
 def wf_get_checks(statement):
@@ -180,16 +223,16 @@ def wf_get_withdrawals(statement):
         return withdraw_amt
 
 
-def wf_get_date(statement):
-    pattern = re.compile(
-        "r\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b"
-    )
-    with pp.open(statement) as pdf:
-        page = pdf.pages[0]
-        text = page.extract_text().split("\n")[1]
-        date = text.split(" Page")[0]
+# def wf_get_date(statement):
+#     pattern = re.compile(
+#         "r\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b"
+#     )
+#     with pp.open(statement) as pdf:
+#         page = pdf.pages[0]
+#         text = page.extract_text().split("\n")[1]
+#         date = text.split(" Page")[0]
 
-    return date
+#     return date
 
 
 def chase_get_checks(statement):
@@ -269,3 +312,8 @@ def chase_get_date(statement):
                 break
 
     return "".join(result)
+
+
+
+
+
