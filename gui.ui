@@ -74,6 +74,11 @@
        </item>
        <item>
         <property name="text">
+         <string>Metro City Bank</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Chase Bank</string>
         </property>
        </item>

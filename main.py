@@ -56,14 +56,13 @@ class MainWindow(QMainWindow):
 
     def convert(self):
         bank = self.combo_box.currentText()
-        print(bank)
-        # try:
-        #     convert_csv(self.file, bank, self.save_loc, self.file_name.text())
-        #     self.label_3.setText("Done!")
-        # except ValueError:
-            # self.label_3.setText("Error! Please try again.")
+        try:
+            convert_csv(self.file, bank, self.save_loc, self.file_name.text())
+            self.label_3.setText("Done!")
+        except ValueError:
+            self.label_3.setText("Error! Please try again.")
 
-        convert_csv(self.file, bank, self.save_loc, self.file_name.text())
+        # convert_csv(self.file, bank, self.save_loc, self.file_name.text())
 
 
 if __name__ == "__main__":
@@ -71,3 +70,8 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
+
+## TODO List
+# Add Progress bar so user knows program is working and not crashed
+# implement metro city bank 

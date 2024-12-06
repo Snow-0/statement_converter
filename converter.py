@@ -44,6 +44,11 @@ def convert_csv(statement, bank, path, file_name):
         withdraws = chase_get_withdrawals(statement)
         date = chase_get_date(statement)
 
+    if bank == "Metro City Bank"
+        checks = metro_get_checks(statement)
+        withdraws = chase_get_checks(statement)
+        date = metro_get_date(statement)
+
     df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
     df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
     df["Check Number"] = df["Check Number"].astype(int)

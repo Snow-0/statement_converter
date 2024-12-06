@@ -315,5 +315,116 @@ def chase_get_date(statement):
 
 
 
+def metro_get_checks(statement):
+    # looks for a pattern that has date, check number, negative amount
+    # can't find amounts without an associated check
+    # pattern = re.compile(r"([A-Za-z]{3}\s\d{2})\s(\*?\d{1,4})?\s([\d,]+\.\d{2})")
+    pattern = re.compile(r"([A-Za-z]{3}\s\d{2})\s\*?(\d{1,4})?\s([\d,]+\.\d{2})")
+    a_list = []
+
+    with pp.open(statement) as pdf:
+        pages = pdf.pages
+
+        for page in pages:
+            text = page.extract_text()
+
+            for line in text.split("\n"):
+                result = pattern.findall(line)
+                if len(result) != 0:
+                    a_list.append(result)
+
+    # flatten the nested tuple list
+    a_list = list(chain.from_iterable(a_list))
+
+    return a_list
 
 
+def metro_get_withdrawals(statement):
+    pattern = re.compile(
+        r"\b[A-Za-z]{3} \d{2} [A-Z0-9.,'/&\s#*-]+(?: \*+[\d]+)?(?: \d{2}/\d{2} \d{2}:\d{2})?\s+\d{1,3}(?:,\d{3})*\.\d{2}\b"
+
+        )
+    pattern_two = re.compile(r"^([A-Za-z]{3} \d{2}) (.+?) (\d{1,3}(?:,\d{3})*\.\d{2})$")
+    instance_found = False
+    extracted_text = []
+    stop_phrase_count = 0
+
+    with pp.open(statement) as pdf:
+        pages = pdf.pages
+
+        filtered_list = []
+        
+        # parse through withdrawal pages
+        stop_phrase = "DEBITS AND OTHER WITHDRAWALS"
+        for page in pages[::-1]: 
+            page_text = page.extract_text()
+
+            # Split the text by lines
+            lines = page_text.split('\n')[::-1]
+            
+            # Process each line
+            for line in lines:
+                # If the stop phrase is found, increment the count
+                if stop_phrase in line:
+                    stop_phrase_count += 1
+
+                # If the second instance of the phrase is found, stop extraction
+                if stop_phrase_count == 1:
+                    instance_found = True
+                    break
+                # Otherwise, continue appending the line to the extracted text
+                extracted_text.append(line)
+
+            # If the second instance is found, break out of the outer loop as well
+            if instance_found:
+                break
+
+        # Join the lines and return the extracted text
+        withdrawal_only =  "\n".join(extracted_text[::-1])
+        
+        for line in withdrawal_only.split("\n"):
+            result = pattern.findall(line)
+            filtered_list.append(result)
+
+        
+                
+        a = []
+        # # add 9999 check number
+        #
+        filtered_list = list(chain.from_iterable(filtered_list))
+        for transaction in filtered_list:
+            print(transaction)
+            result = pattern_two.findall(transaction)
+            a.append(result)
+            
+        a = list(chain.from_iterable(a))
+        b = []
+        for transaction in a: 
+            print(transaction)
+            if not transaction[1][0].isdigit() and not transaction[1][0] == "*":
+                b.append(transaction)
+
+            
+
+
+        # withdraw_amt = [("9999", amt[1]) for amt in b]
+        return b
+
+
+def metro_get_date(statement):
+    pattern = re.compile(r"Statement Thru Date \d{2}/\d{2}/\d{4}")
+    with pp.open(statement) as pdf:
+        page = pdf.pages[0]
+        text = page.extract_text()
+        for line in text.split("\n"):
+            result = pattern.findall(line)
+            if len(result) != 0:
+                break
+    
+    # .split() to just get the date
+    return "".join(result).split(" ")[3]
+
+
+pprint.pprint(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf"))
+pprint.pprint(len(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf")))
+print(len(metro_get_checks("/Users/max/statement_converter/test/revsushi/0424.pdf")))
