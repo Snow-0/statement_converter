@@ -318,8 +318,9 @@ def chase_get_date(statement):
 def metro_get_checks(statement):
     # looks for a pattern that has date, check number, negative amount
     # can't find amounts without an associated check
-    # pattern = re.compile(r"([A-Za-z]{3}\s\d{2})\s(\*?\d{1,4})?\s([\d,]+\.\d{2})")
+    
     pattern = re.compile(r"([A-Za-z]{3}\s\d{2})\s\*?(\d{1,4})?\s([\d,]+\.\d{2})")
+    # pattern = re.compile(r"\s\*?(\d{1,4})?\s([\d,]+\.\d{2})")
     a_list = []
 
     with pp.open(statement) as pdf:
@@ -336,7 +337,9 @@ def metro_get_checks(statement):
     # flatten the nested tuple list
     a_list = list(chain.from_iterable(a_list))
 
-    return a_list
+    b_list = [(s[1], s[2]) for s in a_list]
+
+    return b_list
 
 
 def metro_get_withdrawals(statement):
@@ -404,11 +407,9 @@ def metro_get_withdrawals(statement):
             if not transaction[1][0].isdigit() and not transaction[1][0] == "*":
                 b.append(transaction)
 
-            
-
-
-        # withdraw_amt = [("9999", amt[1]) for amt in b]
-        return b
+        
+        withdraw_amt = [("9999", amt[2]) for amt in b]
+        return withdraw_amt
 
 
 def metro_get_date(statement):
@@ -425,6 +426,7 @@ def metro_get_date(statement):
     return "".join(result).split(" ")[3]
 
 
-pprint.pprint(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf"))
-pprint.pprint(len(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf")))
-print(len(metro_get_checks("/Users/max/statement_converter/test/revsushi/0424.pdf")))
+# pprint.pprint(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf"))
+# pprint.pprint(len(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf")))
+# print(len(metro_get_checks("/Users/max/statement_converter/test/revsushi/0424.pdf")))
+# pprint.pprint(metro_get_checks("/Users/max/statement_converter/test/revsushi/0424.pdf"))

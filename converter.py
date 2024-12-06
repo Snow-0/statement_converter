@@ -44,9 +44,9 @@ def convert_csv(statement, bank, path, file_name):
         withdraws = chase_get_withdrawals(statement)
         date = chase_get_date(statement)
 
-    if bank == "Metro City Bank"
+    if bank == "Metro City Bank":
         checks = metro_get_checks(statement)
-        withdraws = chase_get_checks(statement)
+        withdraws = metro_get_withdrawals(statement)
         date = metro_get_date(statement)
 
     df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
@@ -68,4 +68,4 @@ def convert_csv(statement, bank, path, file_name):
     new_df["Date"] = new_df["Date"].dt.strftime("%m%d%y")
     new_df.to_csv(f"{path}/{file_name}.csv", index=False, header=False)
 
-convert_csv("/Users/max/statement_converter/test/truisttest.pdf", "Truist", "/Users/max/statement_converter/test", "sd")
+# convert_csv("/Users/max/statement_converter/test/revsushi/0424.pdf", "Metro City Bank", "/Users/max/statement_converter/test", "l")

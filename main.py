@@ -56,13 +56,13 @@ class MainWindow(QMainWindow):
 
     def convert(self):
         bank = self.combo_box.currentText()
-        try:
-            convert_csv(self.file, bank, self.save_loc, self.file_name.text())
-            self.label_3.setText("Done!")
-        except ValueError:
-            self.label_3.setText("Error! Please try again.")
+        # try:
+        #     convert_csv(self.file, bank, self.save_loc, self.file_name.text())
+        #     self.label_3.setText("Done!")
+        # except ValueError:
+        #     self.label_3.setText("Error! Please try again.")
 
-        # convert_csv(self.file, bank, self.save_loc, self.file_name.text())
+        convert_csv(self.file, bank, self.save_loc, self.file_name.text())
 
 
 if __name__ == "__main__":
