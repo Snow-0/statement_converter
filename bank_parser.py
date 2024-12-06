@@ -426,7 +426,3 @@ def metro_get_date(statement):
     return "".join(result).split(" ")[3]
 
 
-# pprint.pprint(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf"))
-# pprint.pprint(len(metro_get_withdrawals("/Users/max/statement_converter/test/revsushi/0424.pdf")))
-# print(len(metro_get_checks("/Users/max/statement_converter/test/revsushi/0424.pdf")))
-# pprint.pprint(metro_get_checks("/Users/max/statement_converter/test/revsushi/0424.pdf"))
