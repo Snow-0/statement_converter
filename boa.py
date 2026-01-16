@@ -364,7 +364,8 @@ def main_boa():
         combined_df["Description"] = "Other Debit"
 
         combined_df.sort_values(by="Check Number", inplace=True)
-
+        combined_df["Amount"] = pd.to_numeric(combined_df["Amount"].astype(str).str.replace(',', '', regex=True), errors='coerce')
+        combined_df["Amount"] = combined_df["Amount"].abs()
         print(f"✅ Extracted {len(combined_df)} total transactions")
         print(f"   - Checks: {len(combined_df[combined_df['Check Number'] != 9999])}")
         print(f"   - Other: {len(combined_df[combined_df['Check Number'] == 9999])}")

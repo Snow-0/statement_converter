@@ -578,7 +578,7 @@ class ChaseStatementProcessor:
                 df = df[final_columns]
                 print(f"✅ Extracted {len(df)} total transactions")
                 print(f"   - Checks: {len(checks_data)}")
-                print(f"   - Electronic Withdrawals: {len(electronic_data)}")
+                print(f" x  - Electronic Withdrawals: {len(electronic_data)}")
                 print(f"   - Fees: {len(fees_data)}")
 
             output_file = os.path.join(self.config["output_folder"], f"{os.path.splitext(file)[0]}.csv")
