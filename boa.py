@@ -114,23 +114,7 @@ def boa_get_withdrawals(statement):
         return withdraw_amt
 
 
-def boa_get_date(statement):
-    pattern = re.compile(r"to\s([A-Z].+) A")
-
-    with pp.open(statement) as pdf:
-        page = pdf.pages[0]
-        text = page.extract_text()
-        for line in text.split("\n"):
-            result = pattern.findall(line)
-            if len(result) != 0:
-                break
-
-    return "".join(result)
-
-
-
 def extract_text_from_pdf(statement):
-    text = ""
     checks = boa_get_checks(statement)
     withdrawals = boa_get_withdrawals(statement)
 
@@ -139,7 +123,7 @@ def extract_text_from_pdf(statement):
         page = pdf.pages[0]
         text = page.extract_text()
         if len(text) == 0:
-            text = ""
+            return ""
 
     return checks, withdrawals
 
@@ -154,70 +138,63 @@ def debug_text_extraction(text, filename):
     print(f"🔍 Debug text saved: {debug_file}")
 
 # --- MAIN PROCESSING LOOP ---
-print("📄 Starting extraction...")
-processed_files = 0
 
-for file in os.listdir(input_folder):
+def main_boa():
+    print("📄 Starting extraction...")
+    processed_files = 0
+
+    for file in os.listdir(input_folder):
 
 
-    pdf_path = os.path.join(input_folder, file)
-
-    if file.lower().endswith(".pdf"):
         pdf_path = os.path.join(input_folder, file)
-        print(f"\n🔍 Processing {file}...")
 
-        text = extract_text_from_pdf(pdf_path)
+        if file.lower().endswith(".pdf"):
+            pdf_path = os.path.join(input_folder, file)
+            print(f"\n🔍 Processing {file}...")
+
+            text = extract_text_from_pdf(pdf_path)
 
 
-        # find a fix to check this 
-        # if not text.strip():
-        #     print(f"❌ No text extracted from {file}")
-        #     continue
+            if not text.strip():
+                print(f"❌ No text extracted from {file}")
+                continue
+                
+            # Debug: save extracted text
+            # debug_text_extraction(text, file)
             
-        # Debug: save extracted text
-        # debug_text_extraction(text, file)
-        
-        # Get appropriate month-end date
-        month_end_date = boa_get_dates(pdf_path)
-        print(f"📅 Using month-end date: {month_end_date}")
-        
-        extracted_data = extract_text_from_pdf(pdf_path)
-        checks = extracted_data[0]
-        withdraws = extracted_data[1]
+            # Get appropriate month-end date
+            month_end_date = boa_get_dates(pdf_path)
+            print(f"📅 Using month-end date: {month_end_date}")
+            
+            extracted_data = extract_text_from_pdf(pdf_path)
+            checks = extracted_data[0]
+            withdraws = extracted_data[1]
 
-        df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
-        df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
-        df.sort_values(by=["Check Number"], inplace=True)
-        new_df = pd.concat([df, df1], ignore_index=True)
-        new_df["Check Number"] = new_df["Check Number"].astype(int)
+            df = pd.DataFrame(data=checks, columns=["Check Number", "Amount"])
+            df1 = pd.DataFrame(data=withdraws, columns=["Check Number", "Amount"])
+            df.sort_values(by=["Check Number"], inplace=True)
+            new_df = pd.concat([df, df1], ignore_index=True)
+            new_df["Check Number"] = new_df["Check Number"].astype(int)
 
 
-        # add filler values
-        new_df.insert(1, "Date", month_end_date)
-        new_df.insert(2, "ID", "O01")
-        new_df.insert(3, "Code", "5040")
-        new_df["Description"] = "Other Debit"
-        new_df["Date"] = month_end_date
-        # if not extracted_data:
-        #     print(f"⚠️ No data extracted from {file}")
-        #     # Create empty CSV with correct columns
-        #     df = pd.DataFrame(columns=["Check number", "date", "batch", "code", "amount", "description"])
-        # else:
-        #     df = pd.DataFrame(extracted_data)
-        #     final_columns = ["Check number", "date", "batch", "code", "amount", "description"]
-        #     df = df[final_columns]
-        print(f"✅ Extracted {len(new_df)} total transactions")
-
-        print(f"   - Checks: {len(new_df[new_df['Check Number'] != 9999])}")
-        print(f"   - Other: {len(new_df[new_df['Check Number'] == 9999])}")
+            # add filler values
+            new_df.insert(1, "Date", month_end_date)
+            new_df.insert(2, "ID", "O01")
+            new_df.insert(3, "Code", "5040")
+            new_df["Description"] = "Other Debit"
+            new_df["Date"] = month_end_date
+            print(f"✅ Extracted {len(new_df)} total transactions")
+            print(f"   - Checks: {len(new_df[new_df['Check Number'] != 9999])}")
+            print(f"   - Other: {len(new_df[new_df['Check Number'] == 9999])}")
 
 
-        output_file = os.path.join(output_folder, f"{os.path.splitext(file)[0]}.csv")
-        
-        # Save CSV without headers
-        new_df.to_csv(output_file, index=False, header=False)
-        print(f"💾 Saved: {output_file} (without headers)")
-        
-        processed_files += 1
+            output_file = os.path.join(output_folder, f"{os.path.splitext(file)[0]}.csv")
+            
+            # Save CSV without headers
+            new_df.to_csv(output_file, index=False, header=False)
+            print(f"💾 Saved: {output_file} (without headers)")
+            
+            processed_files += 1
 
-print(f"Extraction complete. Processed {processed_files} files.")
+    print(f"Extraction complete. Processed {processed_files} files.")
+

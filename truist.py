@@ -163,47 +163,49 @@ def debug_text_extraction(text, filename):
     print(f"🔍 Debug text saved: {debug_file}")
 
 # --- MAIN PROCESSING LOOP ---
-print("📄 Starting extraction...")
-processed_files = 0
 
-for file in os.listdir(input_folder):
-    if file.lower().endswith(".pdf"):
-        pdf_path = os.path.join(input_folder, file)
-        print(f"\n🔍 Processing {file}...")
+def main_truist():
+    print("📄 Starting extraction...")
+    processed_files = 0
 
-        text = extract_text_from_pdf(pdf_path)
-        
-        if not text.strip():
-            print(f"❌ No text extracted from {file}")
-            continue
+    for file in os.listdir(input_folder):
+        if file.lower().endswith(".pdf"):
+            pdf_path = os.path.join(input_folder, file)
+            print(f"\n🔍 Processing {file}...")
+
+            text = extract_text_from_pdf(pdf_path)
             
-        # Debug: save extracted text
-        debug_text_extraction(text, file)
-        
-        # Get appropriate month-end date
-        month_end_date = get_month_end_date(text, file)
-        print(f"📅 Using month-end date: {month_end_date}")
-        
-        extracted_data = extract_checks_and_other(text, month_end_date)
+            if not text.strip():
+                print(f"❌ No text extracted from {file}")
+                continue
+                
+            # Debug: save extracted text
+            debug_text_extraction(text, file)
+            
+            # Get appropriate month-end date
+            month_end_date = get_month_end_date(text, file)
+            print(f"📅 Using month-end date: {month_end_date}")
+            
+            extracted_data = extract_checks_and_other(text, month_end_date)
 
-        if not extracted_data:
-            print(f"⚠️ No data extracted from {file}")
-            # Create empty CSV with correct columns
-            df = pd.DataFrame(columns=["Check number", "date", "batch", "code", "amount", "description"])
-        else:
-            df = pd.DataFrame(extracted_data)
-            final_columns = ["Check number", "date", "batch", "code", "amount", "description"]
-            df = df[final_columns]
-            print(f"✅ Extracted {len(df)} total transactions")
-            print(f"   - Checks: {len([x for x in extracted_data if x['Check number'] != '9999'])}")
-            print(f"   - Other: {len([x for x in extracted_data if x['Check number'] == '9999'])}")
+            if not extracted_data:
+                print(f"⚠️ No data extracted from {file}")
+                # Create empty CSV with correct columns
+                df = pd.DataFrame(columns=["Check number", "date", "batch", "code", "amount", "description"])
+            else:
+                df = pd.DataFrame(extracted_data)
+                final_columns = ["Check number", "date", "batch", "code", "amount", "description"]
+                df = df[final_columns]
+                print(f"✅ Extracted {len(df)} total transactions")
+                print(f"   - Checks: {len([x for x in extracted_data if x['Check number'] != '9999'])}")
+                print(f"   - Other: {len([x for x in extracted_data if x['Check number'] == '9999'])}")
 
-        output_file = os.path.join(output_folder, f"{os.path.splitext(file)[0]}.csv")
-        
-        # Save CSV without headers
-        df.to_csv(output_file, index=False, header=False)
-        print(f"💾 Saved: {output_file} (without headers)")
-        
-        processed_files += 1
+            output_file = os.path.join(output_folder, f"{os.path.splitext(file)[0]}.csv")
+            
+            # Save CSV without headers
+            df.to_csv(output_file, index=False, header=False)
+            print(f"💾 Saved: {output_file} (without headers)")
+            
+            processed_files += 1
 
-print(f"\n✨ Extraction complete. Processed {processed_files} files.")
+    print(f"\n✨ Extraction complete. Processed {processed_files} files.")

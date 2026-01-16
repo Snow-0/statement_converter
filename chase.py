@@ -593,6 +593,6 @@ class ChaseStatementProcessor:
         return processed_files
 
 # --- MAIN EXECUTION ---
-if __name__ == "__main__":
-    processor = ChaseStatementProcessor(CONFIG)
-    processor.process_all_pdfs()
+# if __name__ == "__main__":
+#     processor = ChaseStatementProcessor(CONFIG)
+#     processor.process_all_pdfs()

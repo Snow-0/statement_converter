@@ -1,1 +1,0 @@
-## automate the setup process for pyinstaller
